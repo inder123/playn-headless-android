@@ -9,6 +9,7 @@
 
   <artifactId>playn-headless-android</artifactId>
   <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
   <name>Headless version of PlayN Android</name>
 
   <properties>
