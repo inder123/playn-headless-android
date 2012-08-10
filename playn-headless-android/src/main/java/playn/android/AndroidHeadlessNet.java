@@ -29,6 +29,12 @@ import org.apache.http.util.EntityUtils;
 import playn.core.NetImpl;
 import playn.core.util.Callback;
 
+/**
+ * A headless version of {@link NetImpl} that is largely a copy of AndroidNet but avoids
+ * the dependency on AndroidPlatform.
+ *
+ * @author Inderjeet Singh
+ */
 final class AndroidHeadlessNet extends NetImpl {
 
   @Override

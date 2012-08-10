@@ -5,6 +5,13 @@ import android.app.Activity;
 import android.view.Gravity;
 import android.widget.LinearLayout;
 
+/**
+ * A view class that holds the root view of the screen to which various screens can
+ * be added or removed. It is similar to the root view used in AndroidGraphics to hold
+ * open GL canvas but this is pure Android.
+ *
+ * @author Inderjeet Singh
+ */
 public final class AndroidRootView extends LinearLayout {
 
   public AndroidRootView(Activity activity) {

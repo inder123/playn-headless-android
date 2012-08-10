@@ -15,6 +15,7 @@
 */
 package playn.android;
 
+import playn.core.AbstractPlatform;
 import playn.core.Assets;
 import playn.core.Audio;
 import playn.core.Game;
@@ -24,7 +25,6 @@ import playn.core.Keyboard;
 import playn.core.Mouse;
 import playn.core.MouseStub;
 import playn.core.Net;
-import playn.core.Platform;
 import playn.core.PlayN;
 import playn.core.Pointer;
 import playn.core.Touch;
@@ -34,7 +34,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 
-public class AndroidHeadlessPlatform implements Platform {
+/**
+ * A headless version of Android platform that eliminates all dependencies on open-gl
+ * and mouse capture events. It also uses a {@link Handler#post(Runnable)} to implement
+ * {@link #invokeLater(Runnable)} method instead of run queue.
+ *
+ * @author Inderjeet Singh
+ */
+public class AndroidHeadlessPlatform extends AbstractPlatform {
 
   public static final boolean DEBUG_LOGS = true;
 
@@ -50,15 +57,14 @@ public class AndroidHeadlessPlatform implements Platform {
 
   private final AndroidAnalytics analytics;
   private final AndroidHeadlessKeyboard keyboard;
-  private final AndroidLog log;
   private final AndroidHeadlessNet net;
   private final AndroidStorage storage;
   private final Json json;
 
   protected AndroidHeadlessPlatform(Activity activity) {
+    super(new AndroidLog());
     this.activity = activity;
 
-    log = new AndroidLog();
     analytics = new AndroidAnalytics();
     json = new JsonImpl();
     keyboard = new AndroidHeadlessKeyboard(this);
@@ -94,11 +100,6 @@ public class AndroidHeadlessPlatform implements Platform {
   @Override
   public Keyboard keyboard() {
     return keyboard;
-  }
-
-  @Override
-  public AndroidLog log() {
-    return log;
   }
 
   @Override

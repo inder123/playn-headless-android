@@ -22,6 +22,12 @@ import android.content.DialogInterface;
 import android.text.InputType;
 import android.widget.EditText;
 
+/**
+ * A headless version of {@link Keyboard} that is largely a copy of AndroidKeyboard but
+ * avoids the dependency on AndroidPlatform.
+ *
+ * @author Inderjeet Singh
+ */
 public class AndroidHeadlessKeyboard implements Keyboard {
 
   private final AndroidHeadlessPlatform platform;
