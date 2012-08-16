@@ -16,7 +16,10 @@
 package playn.android;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -27,6 +30,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import playn.core.NetImpl;
+import playn.core.PlayN;
 import playn.core.util.Callback;
 
 /**
@@ -72,12 +76,31 @@ final class AndroidHeadlessNet extends NetImpl {
         }
         try {
           HttpResponse response = httpclient.execute(req);
+          examineHeaders(callback, response);
           if (response.getStatusLine().getStatusCode() >= 400) {
             throw new RuntimeException(response.getStatusLine().toString());
           }
           notifySuccess(callback, EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
           notifyFailure(callback, e);
+        }
+      }
+
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      private void examineHeaders(Callback<String> callback, HttpResponse response) {
+        try {
+          Class<? extends Callback> clazz = callback.getClass();
+          Method getResponseHeadersOfInterest = clazz.getMethod("getResponseHeadersOfInterest");
+          if (getResponseHeadersOfInterest == null) return;
+          List<String> headers = (List<String>) getResponseHeadersOfInterest.invoke(callback);
+          Method processHeader = clazz.getMethod("processResponseHeader", String.class, String.class);
+          for (String headerName : headers) {
+            Header header = response.getFirstHeader(headerName);
+            if (header != null) processHeader.invoke(callback, headerName, header.getValue());
+          }
+        } catch (Exception e) {
+          PlayN.log().warn("examineHeaders failed", e);
+          // ignore
         }
       }
     }.start();
