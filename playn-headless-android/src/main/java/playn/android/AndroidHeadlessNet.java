@@ -72,6 +72,9 @@ final class AndroidHeadlessNet extends NetImpl {
         }
         try {
           HttpResponse response = httpclient.execute(req);
+          if (response.getStatusLine().getStatusCode() >= 400) {
+            throw new RuntimeException(response.getStatusLine().toString());
+          }
           notifySuccess(callback, EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
           notifyFailure(callback, e);
