@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -76,10 +77,7 @@ final class AndroidHeadlessNet extends NetImpl {
         }
         try {
           HttpResponse response = httpclient.execute(req);
-          examineHeaders(callback, response);
-          if (response.getStatusLine().getStatusCode() >= 400) {
-            throw new RuntimeException(response.getStatusLine().toString());
-          }
+          allowCallbackToProcessFullResponse(callback, response);
           notifySuccess(callback, EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
           notifyFailure(callback, e);
@@ -87,11 +85,17 @@ final class AndroidHeadlessNet extends NetImpl {
       }
 
       @SuppressWarnings({ "rawtypes", "unchecked" })
-      private void examineHeaders(Callback<String> callback, HttpResponse response) {
+      private void allowCallbackToProcessFullResponse(Callback<String> callback, HttpResponse response) {
         try {
           Class<? extends Callback> clazz = callback.getClass();
+          Method processResponseStatus = clazz.getMethod("processResponseStatus", int.class, String.class);
+          if (processResponseStatus == null) return;
+          StatusLine statusLine = response.getStatusLine();
+          int statusCode = statusLine.getStatusCode();
+          String reason = statusLine.getReasonPhrase();
+          processResponseStatus.invoke(callback, statusCode, reason);
+
           Method getResponseHeadersOfInterest = clazz.getMethod("getResponseHeadersOfInterest");
-          if (getResponseHeadersOfInterest == null) return;
           List<String> headers = (List<String>) getResponseHeadersOfInterest.invoke(callback);
           Method processHeader = clazz.getMethod("processResponseHeader", String.class, String.class);
           for (String headerName : headers) {
@@ -99,7 +103,7 @@ final class AndroidHeadlessNet extends NetImpl {
             if (header != null) processHeader.invoke(callback, headerName, header.getValue());
           }
         } catch (Exception e) {
-          PlayN.log().warn("examineHeaders failed", e);
+          PlayN.log().warn("Bad callback", e);
           // ignore
         }
       }
