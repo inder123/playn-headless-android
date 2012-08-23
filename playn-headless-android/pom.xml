@@ -16,6 +16,23 @@
   <properties>
     <playn.version>1.4</playn.version>
   </properties>
+  <scm>
+    <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
+    <url>scm:git:git@github.com:inder123/playn-ext.git</url>
+    <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
+  </scm>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>cloudbees-private-snapshot-repository</id>
+      <name>Cloudbees Private Repository</name>
+      <url>${snapshot-repo.url}</url>
+    </snapshotRepository>
+    <repository>
+      <id>cloudbees-private-release-repository</id>
+      <name>Cloudbees Private Repository</name>
+      <url>${release-repo.url}</url>
+    </repository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
@@ -67,6 +84,13 @@
         <extensions>true</extensions>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-webdav-jackrabbit</artifactId>
+        <version>2.2</version>
+      </extension>
+    </extensions>
   </build>
 </project>
 
