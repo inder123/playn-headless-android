@@ -8,13 +8,14 @@
   </parent>
   <groupId>com.singhinderjeet</groupId>
   <artifactId>playn-ext</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.1</version>
   <packaging>pom</packaging>
   <name>Playn Extensions Metaproject</name>
   <scm>
     <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
     <url>scm:git:git@github.com:inder123/playn-ext.git</url>
     <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
+    <tag>playn-ext-1.1</tag>
   </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
