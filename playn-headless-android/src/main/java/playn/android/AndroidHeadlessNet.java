@@ -23,8 +23,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -36,7 +38,8 @@ import playn.core.util.Callback;
 
 /**
  * A headless version of {@link NetImpl} that is largely a copy of AndroidNet but avoids
- * the dependency on AndroidPlatform.
+ * the dependency on AndroidPlatform. In addition, it supports HTTP PUT, and converts
+ * Greaze inlined requests into regular requests.
  *
  * @author Inderjeet Singh
  */
@@ -56,25 +59,33 @@ final class AndroidHeadlessNet extends NetImpl {
     super(platform);
   }
 
-  private void doHttp(final boolean isPost, final String url, final String data,
+  private void doHttp(final boolean isPost, final String urlIn, final String dataIn,
                       final Callback<String> callback) {
     new Thread("AndroidNet.doHttp") {
       public void run() {
         HttpClient httpclient = new DefaultHttpClient();
         HttpRequestBase req = null;
-        if (isPost) {
-          HttpPost httppost = new HttpPost(url);
+        // Convert inlined request to regular request.
+        String method = isPost ? "POST" : "GET";
+        InlineConverter inlined = new InlineConverter(method, urlIn, dataIn, PlayN.json());
+        String url = inlined.getUrl();
+        String data = inlined.getBody();
+        method = inlined.getHttpMethod();
+        if (method.equalsIgnoreCase("GET")) {
+          req = new HttpGet(url);
+        } else {
+          HttpEntityEnclosingRequestBase op = method.equalsIgnoreCase("PUT")
+              ? new HttpPut(url) : new HttpPost(url);
           if (data != null) {
             try {
-              httppost.setEntity(new StringEntity(data));
+              op.setEntity(new StringEntity(data));
             } catch (UnsupportedEncodingException e) {
               notifyFailure(callback, e);
             }
           }
-          req = httppost;
-        } else {
-          req = new HttpGet(url);
+          req = op;
         }
+        inlined.applyHeaders(req);
         try {
           HttpResponse response = httpclient.execute(req);
           allowCallbackToProcessFullResponse(callback, response);
