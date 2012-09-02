@@ -56,7 +56,7 @@ public final class UrlUtils {
     map.put('\\', "%5C");
     map.put(']', "%5D");
     map.put('^', "%5E");
-    map.put('_', "%5F");
+    // map.put('_', "%5F");
     map.put('`', "%60");
     map.put('{', "%7B");
     map.put('|', "%7C");
