@@ -44,6 +44,7 @@ import playn.core.util.Callback;
  * @author Inderjeet Singh
  */
 final class AndroidHeadlessNet extends NetImpl {
+  private static final boolean LOG = false;
 
   @Override
   public void get(String url, Callback<String> callback) {
@@ -71,6 +72,7 @@ final class AndroidHeadlessNet extends NetImpl {
         String url = inlined.getUrl();
         String data = inlined.getBody();
         method = inlined.getHttpMethod();
+        if (LOG) PlayN.log().info(method + " " + url + "\n" + inlined.getHeaders() + "\n" + data);
         if (method.equalsIgnoreCase("GET")) {
           req = new HttpGet(url);
         } else {
