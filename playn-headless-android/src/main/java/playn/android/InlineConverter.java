@@ -92,7 +92,8 @@ final class InlineConverter {
     if (url.charAt(start-1) == '&') { // consume the & before
       --start;
       ++length;
-    } else if (url.length() > start+length+1 && url.charAt(start+length+1) == '&') { // consume the & after
+    } else if (url.length() > start+length+1 && url.charAt(start+length+1) == '&') {
+      // consume the & after
       ++length;
     }
     int second = start + length;
@@ -115,8 +116,15 @@ final class InlineConverter {
 
   private String addUrlParam(String url, String key, String value) {
     if (key.equals(INLINE_PARAM)) return url;
-    String param = UrlUtils.urlEncode(key) + "=" + UrlUtils.urlEncode(value);
-    if (url.contains(param)) return url; // Already present, no need to add again
+    // Somewhat controversial step of disallowing multiple values for the same url parameter
+    // However, this protects against duplicating url parameter when the value is a JSON object
+    // with reordered fields.
+    if (url.contains(key+"=")) return url;
+    // important to compare key with = otherwise the key can match randomly. This works because
+    // only = can precede a url parameter key.
+    String encodedKey = UrlUtils.urlEncode(key) + "=";
+    if (url.contains(encodedKey)) return url;
+    String param = encodedKey + UrlUtils.urlEncode(value);
     url += url.contains("?") ? "&" : "?";
     url += param;
     return url;
