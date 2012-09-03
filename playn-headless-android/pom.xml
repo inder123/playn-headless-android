@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.singhinderjeet</groupId>
     <artifactId>playn-ext</artifactId>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
   </parent>
 
   <artifactId>playn-headless-android</artifactId>
@@ -18,7 +18,7 @@
     <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
     <url>scm:git:git@github.com:inder123/playn-ext.git</url>
     <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
-    <tag>playn-ext-1.2</tag>
+    <tag>HEAD</tag>
   </scm>
   <distributionManagement>
     <snapshotRepository>
