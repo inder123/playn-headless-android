@@ -13,7 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.android;
+package playn.net.ext;
+
+import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import playn.core.Json;
@@ -80,7 +82,9 @@ public class InlineConverterTest extends TestCase {
     String url = "http://localhost:8080/context/pathinfo?X-Greaze-Inline=true";
     String data = "{\"headers\":{\"h1\":\"v1\"},\"body\":{\"1\":\"2\"},\"urlParams\":{\"a\":\"b\"}}";
     InlineConverter inline = new InlineConverter("POST", url, data, parser);
-    assertEquals("v1", inline.getHeaders().get("h1"));
+    Entry<String, String> header = inline.getHeaders().iterator().next();
+    assertEquals("h1", header.getKey());
+    assertEquals("v1", header.getValue());
   }
 
   public void testUrlParams() {

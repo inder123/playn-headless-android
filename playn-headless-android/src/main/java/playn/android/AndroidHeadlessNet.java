@@ -18,6 +18,7 @@ package playn.android;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -35,6 +36,7 @@ import org.apache.http.util.EntityUtils;
 import playn.core.NetImpl;
 import playn.core.PlayN;
 import playn.core.util.Callback;
+import playn.net.ext.InlineConverter;
 
 /**
  * A headless version of {@link NetImpl} that is largely a copy of AndroidNet but avoids
@@ -87,7 +89,9 @@ final class AndroidHeadlessNet extends NetImpl {
           }
           req = op;
         }
-        inlined.applyHeaders(req);
+        for (Map.Entry<String, String> header : inlined.getHeaders()) {
+          req.setHeader(header.getKey(), header.getValue());
+        }
         try {
           HttpResponse response = httpclient.execute(req);
           allowCallbackToProcessFullResponse(callback, response);

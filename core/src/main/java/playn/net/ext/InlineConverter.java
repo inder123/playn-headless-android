@@ -13,12 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.android;
+package playn.net.ext;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.http.client.methods.HttpRequestBase;
 
 import playn.core.Json;
 import playn.core.Json.TypedArray;
@@ -28,7 +26,7 @@ import playn.core.Json.TypedArray;
  *
  * @author Inderjeet Singh
  */
-final class InlineConverter {
+public final class InlineConverter {
   private static final String INLINE_PARAM_TRUE = "X-Greaze-Inline=true";
   private static final String INLINE_PARAM = "X-Greaze-Inline";
   private static final String INLINE_PARAM_FALSE = "X-Greaze-Inline=false";
@@ -40,7 +38,7 @@ final class InlineConverter {
   private final Json.Object envelope;
   private final Map<String, String> headers;
 
-  InlineConverter(String method, String url, String data, Json parser) {
+  public InlineConverter(String method, String url, String data, Json parser) {
     this.inlined = url.contains(INLINE_PARAM_TRUE);
     this.envelope = inlined ? parser.parse(data) : null;
     this.method = inlined ? extractMethod(method, envelope) : method;
@@ -67,15 +65,8 @@ final class InlineConverter {
     return body;
   }
 
-  public void applyHeaders(HttpRequestBase req) {
-    for (Map.Entry<String, String> header : headers.entrySet()) {
-      req.setHeader(header.getKey(), header.getValue());
-    }
-  }
-
-  /** Visible for testing only */
-  Map<String, String> getHeaders() {
-    return headers;
+  public Iterable<Map.Entry<String, String>> getHeaders() {
+    return headers.entrySet();
   }
 
   /** Visible for testing only */
