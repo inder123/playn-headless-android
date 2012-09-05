@@ -38,6 +38,7 @@
     <module>core</module>
     <module>playn-headless-android</module>
     <module>java</module>
+    <module>ios</module>
   </modules>
 
   <build>
