@@ -30,7 +30,9 @@ import cli.System.Net.WebResponse;
 
 public class IOSExtNet extends IOSNet {
 
-  public IOSExtNet(IOSExtPlatform platform) {
+  private static final boolean DEBUG = true;
+
+  public IOSExtNet(IOSPlatform platform) {
     super(platform);
   }
 
@@ -40,6 +42,7 @@ public class IOSExtNet extends IOSNet {
       final WebRequest req = WebRequest.Create(url);
       req.BeginGetResponse(gotResponse(req, callback), null);
     } catch (Throwable t) {
+      PlayN.log().warn("Network error", t);
       callback.onFailure(t);
     }
   }
@@ -54,13 +57,27 @@ public class IOSExtNet extends IOSNet {
       final String data = inlined.getBody();
       method = inlined.getHttpMethod();
 
+      if (DEBUG) PlayN.log().info(method + " to " + url);
       final WebRequest req = WebRequest.Create(url);
       req.set_Method(method);
-      WebHeaderCollection headers = new WebHeaderCollection();
+      WebHeaderCollection headers = req.get_Headers();
+      req.set_ContentType("application/json");
       for (Map.Entry<String, String> header : inlined.getHeaders()) {
-        headers.Add(header.getKey(), header.getValue());
+        String name = header.getKey();
+        if (name.equalsIgnoreCase("Content-Type")) continue;
+        String value = header.getValue();
+        if (headers.Get(name) != null) {
+          headers.Set(name,  value);
+        } else {
+          headers.Add(name, value);
+        }
       }
-      req.set_Headers(headers);
+      if (DEBUG) PlayN.log().info("Request: " + req + " headers: " + req.get_Headers());
+      if (method.equalsIgnoreCase("GET")) {
+        req.BeginGetResponse(gotResponse(req, callback), null);
+        return;
+      }
+      // POST request
       req.BeginGetRequestStream(new AsyncCallback(new AsyncCallback.Method() {
         @Override
         public void Invoke(IAsyncResult result) {
@@ -70,11 +87,13 @@ public class IOSExtNet extends IOSNet {
             out.Close();
             req.BeginGetResponse(gotResponse(req, callback), null);
           } catch (Throwable t) {
+            PlayN.log().warn("Network error", t);
             notifyFailure(callback, t);
           }
         }
       }), null);
     } catch (Throwable t) {
+      PlayN.log().warn("Network error", t);
       callback.onFailure(t);
     }
   }
@@ -90,6 +109,7 @@ public class IOSExtNet extends IOSNet {
           reader = new StreamReader(rsp.GetResponseStream());
           notifySuccess(callback, reader.ReadToEnd());
         } catch (final Throwable t) {
+          PlayN.log().warn("Network error", t);
           notifyFailure(callback, t);
         } finally {
           if (reader != null)
@@ -103,6 +123,7 @@ public class IOSExtNet extends IOSNet {
     WebHeaderCollection headers = rsp.get_Headers();
     String authToken = headers.Get("X-Trymph-AuthN");
     if (authToken != null && !authToken.isEmpty()) {
+      if (DEBUG) PlayN.log().info("Storing auth token: " + authToken);
       PlayN.storage().setItem("X-Trymph-AuthN", authToken);
     }
   }
