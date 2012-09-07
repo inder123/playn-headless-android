@@ -46,7 +46,7 @@ import playn.net.ext.InlineConverter;
  * @author Inderjeet Singh
  */
 final class AndroidHeadlessNet extends NetImpl {
-  private static final boolean LOG = false;
+  private static final boolean LOG = true;
 
   @Override
   public void get(String url, Callback<String> callback) {
