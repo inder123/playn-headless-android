@@ -11,7 +11,6 @@ import playn.core.Game;
 import playn.core.Json;
 import playn.core.Keyboard;
 import playn.core.Mouse;
-import playn.core.Net;
 import playn.core.PlayN;
 import playn.core.Pointer;
 import playn.core.RegularExpression;
@@ -40,39 +39,37 @@ public class JavaExtPlatform extends JavaPlatform {
   // we try to squeeze a paint() near max bound of FRAME_TIME.
   private static final float FRAME_TIME = 10;
 
-  private static JavaPlatform testInstance;
+  private static JavaExtPlatform testInstance;
 
+  /**
+   * Registers the Java platform with a default configuration.
+   */
   public static JavaExtPlatform register() {
-    float scaleFactor = 1;
-    String sfprop = System.getProperty("playn.scaleFactor", String.valueOf(scaleFactor));
-    try {
-      return register(Float.parseFloat(sfprop));
-    } catch (Exception e) {
-      System.err.println("Invalid scaleFactor supplied '" + sfprop + "': " + e);
-    }
-    return register(scaleFactor);
+    return register(new Config());
   }
 
-  public static JavaExtPlatform register(float scaleFactor) {
-    JavaExtPlatform instance = new JavaExtPlatform(scaleFactor, false);
-    PlayN.setPlatform(instance);
-    return instance;
-  }
-
-  public static JavaPlatform registerHeadless() {
-    // Guard against multiple-registration. This can happen when running tests in maven.
-    if (testInstance != null) {
+  /**
+   * Registers the Java platform with the specified configuration.
+   */
+  public static JavaExtPlatform register(Config config) {
+    // guard against multiple-registration (only in headless mode because this can happen when
+    // running tests in Maven; in non-headless mode, we want to fail rather than silently ignore
+    // erroneous repeated registration)
+    if (config.headless && testInstance != null) {
       return testInstance;
     }
-    testInstance = new JavaPlatform(1, true);
-    PlayN.setPlatform(testInstance);
-    return testInstance;
+    JavaExtPlatform instance = new JavaExtPlatform(config);
+    if (config.headless) {
+      testInstance = instance;
+    }
+    PlayN.setPlatform(instance);
+    return instance;
   }
 
   private final JavaAnalytics analytics = new JavaAnalytics();
   private final JavaAudio audio = new JavaAudio();
   private final JavaRegularExpression regex = new JavaRegularExpression();
-  private final JavaStorage storage = new JavaStorage();
+  private final JavaStorage storage;
   private final JsonImpl json = new JsonImpl();
   private final JavaKeyboard keyboard = new JavaKeyboard();
   private final JavaPointer pointer = new JavaPointer();
@@ -85,10 +82,12 @@ public class JavaExtPlatform extends JavaPlatform {
   private double lastUpdateTime;
   private double lastPaintTime;
 
-  public JavaExtPlatform(float scaleFactor, boolean headless) {
-    super(scaleFactor, headless);
-    graphics = new JavaGraphics(this, scaleFactor, headless);
+  public JavaExtPlatform(Config config) {
+    super(config);
+    graphics = new JavaGraphics(this, config);
+    storage = new JavaStorage(this, config);
   }
+
 
   /**
    * Sets the title of the window.
@@ -125,7 +124,7 @@ public class JavaExtPlatform extends JavaPlatform {
   }
 
   @Override
-  public Net net() {
+  public JavaExtNet net() {
     return net;
   }
 
@@ -190,7 +189,6 @@ public class JavaExtPlatform extends JavaPlatform {
   public void run(final Game game) {
     this.updateRate = game.updateRate();
 
-    storage.init();
     try {
       // initialize LWJGL (and show the display) now that the game has been initialized
       graphics.init();
