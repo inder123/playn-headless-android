@@ -83,7 +83,7 @@ public final class InlineConverter {
     if (url.charAt(start-1) == '&') { // consume the & before
       --start;
       ++length;
-    } else if (url.length() > start+length+1 && url.charAt(start+length+1) == '&') {
+    } else if (url.length() > start+length && url.charAt(start+length) == '&') {
       // consume the & after
       ++length;
     }
