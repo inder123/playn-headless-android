@@ -81,21 +81,13 @@ public class AndroidHeadlessKeyboard implements Keyboard {
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int whichButton) {
             final String value = input.getText().toString();
-            platform.invokeLater(new Runnable() {
-              public void run() {
-                callback.onSuccess(value);
-              }
-            });
+            platform.notifySuccess(callback, value);
           }
         });
 
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int whichButton) {
-            platform.invokeLater(new Runnable() {
-              public void run() {
-                callback.onSuccess(null);
-              }
-            });
+            platform.notifySuccess(callback, null);
           }
         });
         alert.show();
@@ -109,7 +101,7 @@ public class AndroidHeadlessKeyboard implements Keyboard {
   boolean onKeyDown(Event event) {
     if (listener != null) {
       listener.onKeyDown(event);
-      return event.getPreventDefault();
+      return event.flags().getPreventDefault();
     }
     return false;
   }
@@ -117,7 +109,7 @@ public class AndroidHeadlessKeyboard implements Keyboard {
   boolean onKeyTyped(TypedEvent event) {
     if (listener != null) {
       listener.onKeyTyped(event);
-      return event.getPreventDefault();
+      return event.flags().getPreventDefault();
     }
     return false;
   }
@@ -125,7 +117,7 @@ public class AndroidHeadlessKeyboard implements Keyboard {
   boolean onKeyUp(Event event) {
     if (listener != null) {
       listener.onKeyUp(event);
-      return event.getPreventDefault();
+      return event.flags().getPreventDefault();
     }
     return false;
   }

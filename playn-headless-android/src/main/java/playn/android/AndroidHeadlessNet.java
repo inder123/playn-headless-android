@@ -84,7 +84,7 @@ final class AndroidHeadlessNet extends NetImpl {
             try {
               op.setEntity(new StringEntity(data));
             } catch (UnsupportedEncodingException e) {
-              notifyFailure(callback, e);
+              platform.notifyFailure(callback, e);
             }
           }
           req = op;
@@ -95,9 +95,9 @@ final class AndroidHeadlessNet extends NetImpl {
         try {
           HttpResponse response = httpclient.execute(req);
           allowCallbackToProcessFullResponse(callback, response);
-          notifySuccess(callback, EntityUtils.toString(response.getEntity()));
+          platform.notifySuccess(callback, EntityUtils.toString(response.getEntity()));
         } catch (Exception e) {
-          notifyFailure(callback, e);
+          platform.notifyFailure(callback, e);
         }
       }
 

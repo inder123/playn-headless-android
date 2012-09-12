@@ -88,7 +88,7 @@ public class IOSExtNet extends IOSNet {
             req.BeginGetResponse(gotResponse(req, callback), null);
           } catch (Throwable t) {
             PlayN.log().warn("Network error", t);
-            notifyFailure(callback, t);
+            platform.notifyFailure(callback, t);
           }
         }
       }), null);
@@ -107,10 +107,10 @@ public class IOSExtNet extends IOSNet {
           WebResponse rsp = req.EndGetResponse(result);
           extractAuthToken(rsp);
           reader = new StreamReader(rsp.GetResponseStream());
-          notifySuccess(callback, reader.ReadToEnd());
+          platform.notifySuccess(callback, reader.ReadToEnd());
         } catch (final Throwable t) {
           PlayN.log().warn("Network error", t);
-          notifyFailure(callback, t);
+          platform.notifyFailure(callback, t);
         } finally {
           if (reader != null)
             reader.Close();

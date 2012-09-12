@@ -163,4 +163,9 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   public Type type() {
     return Type.ANDROID;
   }
+
+  @Override
+  public void setPropagateEvents(boolean propagate) {
+    // No touch and pointer
+  }
 }

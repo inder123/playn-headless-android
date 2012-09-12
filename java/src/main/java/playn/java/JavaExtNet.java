@@ -43,12 +43,12 @@ public class JavaExtNet extends JavaNet {
           URL url = new URL(canonicalizeUrl(urlStr));
           InputStream stream = url.openStream();
           InputStreamReader reader = new InputStreamReader(stream);
-          notifySuccess(callback, readFully(reader));
+          platform.notifySuccess(callback, readFully(reader));
 
         } catch (MalformedURLException e) {
-          notifyFailure(callback, e);
+          platform.notifyFailure(callback, e);
         } catch (IOException e) {
-          notifyFailure(callback, e);
+          platform.notifyFailure(callback, e);
         }
       }
     }.start();
@@ -89,12 +89,12 @@ public class JavaExtNet extends JavaNet {
           String result = readFully(new InputStreamReader(conn.getInputStream()));
           conn.disconnect();
           allowCallbackToProcessFullResponse(callback, conn);
-          notifySuccess(callback, result);
+          platform.notifySuccess(callback, result);
 
         } catch (MalformedURLException e) {
-          notifyFailure(callback, e);
+          platform.notifyFailure(callback, e);
         } catch (IOException e) {
-          notifyFailure(callback, e);
+          platform.notifyFailure(callback, e);
         }
       }
     }.start();
