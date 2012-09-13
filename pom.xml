@@ -36,7 +36,7 @@
 
   <modules>
     <module>core</module>
-    <module>playn-headless-android</module>
+    <module>android</module>
     <module>java</module>
     <module>ios</module>
   </modules>
