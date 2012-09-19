@@ -55,18 +55,16 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   Activity activity;
   private final Handler handler = new Handler();
 
-  private final AndroidAnalytics analytics;
+  private final AndroidAnalytics analytics = new AndroidAnalytics();
   private final AndroidHeadlessKeyboard keyboard;
   private final AndroidHeadlessNet net;
   private final AndroidStorage storage;
-  private final Json json;
+  private final Json json = new JsonImpl();
 
   protected AndroidHeadlessPlatform(Activity activity) {
     super(new AndroidLog());
     this.activity = activity;
 
-    analytics = new AndroidAnalytics();
-    json = new JsonImpl();
     keyboard = new AndroidHeadlessKeyboard(this);
     net = new AndroidHeadlessNet(this);
     storage = new AndroidStorage(activity);
