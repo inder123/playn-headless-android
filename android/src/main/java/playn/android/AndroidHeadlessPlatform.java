@@ -58,7 +58,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   private final AndroidAnalytics analytics = new AndroidAnalytics();
   private final AndroidHeadlessKeyboard keyboard;
   private final AndroidHeadlessNet net;
-  private final AndroidStorage storage;
+  private final AndroidHeadlessStorage storage;
   private final Json json = new JsonImpl();
 
   protected AndroidHeadlessPlatform(Activity activity) {
@@ -67,7 +67,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
 
     keyboard = new AndroidHeadlessKeyboard(this);
     net = new AndroidHeadlessNet(this);
-    storage = new AndroidStorage(activity);
+    storage = new AndroidHeadlessStorage(activity);
   }
 
   @Override
@@ -148,7 +148,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   }
 
   @Override
-  public AndroidStorage storage() {
+  public AndroidHeadlessStorage storage() {
     return storage;
   }
 
