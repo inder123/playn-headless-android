@@ -16,8 +16,6 @@
 package playn.android;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.http.Header;
@@ -36,6 +34,7 @@ import org.apache.http.util.EntityUtils;
 import playn.core.NetImpl;
 import playn.core.PlayN;
 import playn.core.util.Callback;
+import playn.net.ext.HttpCallback;
 import playn.net.ext.InlineConverter;
 
 /**
@@ -94,30 +93,32 @@ final class AndroidHeadlessNet extends NetImpl {
         }
         try {
           HttpResponse response = httpclient.execute(req);
-          allowCallbackToProcessFullResponse(callback, response);
-          platform.notifySuccess(callback, EntityUtils.toString(response.getEntity()));
+          String responseBody = null;
+          Exception responseBodyReadError = null;
+          try {
+            responseBody = EntityUtils.toString(response.getEntity());
+          } catch (Exception e) {
+            responseBodyReadError = e;
+          }
+          allowCallbackToProcessFullResponse(callback, response, responseBody);
+          if (responseBodyReadError != null) throw responseBodyReadError;
+          platform.notifySuccess(callback, responseBody);
         } catch (Exception e) {
           platform.notifyFailure(callback, e);
         }
       }
 
-      @SuppressWarnings({ "rawtypes", "unchecked" })
-      private void allowCallbackToProcessFullResponse(Callback<String> callback, HttpResponse response) {
+      private void allowCallbackToProcessFullResponse(
+          Callback<String> callback, HttpResponse response, String responseBody) {
         try {
-          Class<? extends Callback> clazz = callback.getClass();
-          Method processResponseStatus = clazz.getMethod("processResponseStatus", int.class, String.class);
-          if (processResponseStatus == null) return;
+          if (!(callback instanceof HttpCallback)) return;
+          HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
           StatusLine statusLine = response.getStatusLine();
-          int statusCode = statusLine.getStatusCode();
-          String reason = statusLine.getReasonPhrase();
-          processResponseStatus.invoke(callback, statusCode, reason);
-
-          Method getResponseHeadersOfInterest = clazz.getMethod("getResponseHeadersOfInterest");
-          List<String> headers = (List<String>) getResponseHeadersOfInterest.invoke(callback);
-          Method processHeader = clazz.getMethod("processResponseHeader", String.class, String.class);
-          for (String headerName : headers) {
+          httpCallback.processResponseStatus(statusLine.getStatusCode(),
+              statusLine.getReasonPhrase(), responseBody);
+          for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
             Header header = response.getFirstHeader(headerName);
-            if (header != null) processHeader.invoke(callback, headerName, header.getValue());
+            if (header != null) httpCallback.processResponseHeader(headerName, header.getValue());
           }
         } catch (Exception e) {
           PlayN.log().warn("Bad callback", e);

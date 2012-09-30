@@ -19,11 +19,13 @@ import java.util.Map;
 
 import playn.core.PlayN;
 import playn.core.util.Callback;
+import playn.net.ext.HttpCallback;
 import playn.net.ext.InlineConverter;
 import cli.System.AsyncCallback;
 import cli.System.IAsyncResult;
 import cli.System.IO.StreamReader;
 import cli.System.IO.StreamWriter;
+import cli.System.Net.HttpWebResponse;
 import cli.System.Net.WebHeaderCollection;
 import cli.System.Net.WebRequest;
 import cli.System.Net.WebResponse;
@@ -105,9 +107,21 @@ public class IOSExtNet extends IOSNet {
         StreamReader reader = null;
         try {
           WebResponse rsp = req.EndGetResponse(result);
-          extractAuthToken(rsp);
+          // extractAuthToken(rsp);
           reader = new StreamReader(rsp.GetResponseStream());
-          platform.notifySuccess(callback, reader.ReadToEnd());
+          String responseBody = reader.ReadToEnd();
+          if (callback instanceof HttpCallback) {
+            HttpWebResponse httpResponse = (HttpWebResponse) rsp;
+            HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
+            httpCallback.processResponseStatus(httpResponse.get_StatusCode().Value,
+                httpResponse.get_StatusDescription(), responseBody);
+            WebHeaderCollection respHeaders = rsp.get_Headers();
+            for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
+              String value = respHeaders.Get(headerName);
+              if (value != null) httpCallback.processResponseHeader(headerName, value);
+            }
+          }
+          platform.notifySuccess(callback, responseBody);
         } catch (final Throwable t) {
           PlayN.log().warn("Network error", t);
           platform.notifyFailure(callback, t);
@@ -117,14 +131,5 @@ public class IOSExtNet extends IOSNet {
         }
       }
     });
-  }
-
-  private void extractAuthToken(WebResponse rsp) {
-    WebHeaderCollection headers = rsp.get_Headers();
-    String authToken = headers.Get("X-Trymph-AuthN");
-    if (authToken != null && !authToken.isEmpty()) {
-      if (DEBUG) PlayN.log().info("Storing auth token: " + authToken);
-      PlayN.storage().setItem("X-Trymph-AuthN", authToken);
-    }
   }
 }

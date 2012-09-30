@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +15,7 @@ import java.util.Map;
 
 import playn.core.PlayN;
 import playn.core.util.Callback;
+import playn.net.ext.HttpCallback;
 import playn.net.ext.InlineConverter;
 
 public class JavaExtNet extends JavaNet {
@@ -88,7 +88,7 @@ public class JavaExtNet extends JavaNet {
           }
           String result = readFully(new InputStreamReader(conn.getInputStream()));
           conn.disconnect();
-          allowCallbackToProcessFullResponse(callback, conn);
+          allowCallbackToProcessFullResponse(callback, conn, result);
           platform.notifySuccess(callback, result);
 
         } catch (MalformedURLException e) {
@@ -100,25 +100,16 @@ public class JavaExtNet extends JavaNet {
     }.start();
   }
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  private void allowCallbackToProcessFullResponse(Callback<String> callback, HttpURLConnection conn) {
+  private void allowCallbackToProcessFullResponse(
+      Callback<String> callback, HttpURLConnection conn, String responseBody) {
     try {
-      Class<? extends Callback> clazz = callback.getClass();
-      Method processResponseStatus = clazz.getMethod("processResponseStatus", int.class, String.class);
-      if (processResponseStatus == null) return;
-      processResponseStatus.setAccessible(true);
-      int statusCode = conn.getResponseCode();
-      String reason = conn.getResponseMessage();
-      processResponseStatus.invoke(callback, statusCode, reason);
-
-      Method getResponseHeadersOfInterest = clazz.getMethod("getResponseHeadersOfInterest");
-      getResponseHeadersOfInterest.setAccessible(true);
-      List<String> headers = (List<String>) getResponseHeadersOfInterest.invoke(callback);
-      Method processHeader = clazz.getMethod("processResponseHeader", String.class, String.class);
-      processHeader.setAccessible(true);
-      for (String headerName : headers) {
+      if (!(callback instanceof HttpCallback)) return;
+      HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
+      httpCallback.processResponseStatus(conn.getResponseCode(),
+          conn.getResponseMessage(), responseBody);
+      for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
         String header = conn.getHeaderField(headerName);
-        if (header != null) processHeader.invoke(callback, headerName, header);
+        if (header != null) httpCallback.processResponseHeader(headerName, header);
       }
     } catch (Exception e) {
       PlayN.log().warn("Bad callback", e);
