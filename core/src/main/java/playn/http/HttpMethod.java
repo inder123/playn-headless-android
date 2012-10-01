@@ -13,19 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.net.ext;
+package playn.http;
 
-import java.util.List;
+public enum HttpMethod {
+  GET, POST, PUT;
 
-import playn.core.util.Callback;
-
-/**
- * A special callback that also provides a mechanism to process response headers.
- *
- * @author Inderjeet Singh
- */
-public interface HttpCallback<T> extends Callback<T> {
-  public List<String> getResponseHeadersOfInterest();
-  public void processResponseHeader(String header, String value);
-  public void processResponseStatus(int responseStatusCode, String reasonPhrase, String responseBody);
+  /**
+   * This header is used to indicate the real method that is channeled through the current
+   * request. For example, you can use it to send PUT requests under a POST.
+   * You can do this by setting a Request header on HttpURLConnection:
+   * {@code conn.setRequestProperty(HttpMethod.SIMULATED_METHOD_HEADER, HttpMethod.PUT.toString());}
+   * You should then send the request method to POST: {@code conn.setRequestMethod("POST");}
+   */
+  public static final String HTTP_METHOD_OVERRIDE = "X-HTTP-Method-Override";
 }

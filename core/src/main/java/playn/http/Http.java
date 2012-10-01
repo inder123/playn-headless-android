@@ -13,19 +13,28 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.net.ext;
-
-import java.util.List;
+package playn.http;
 
 import playn.core.util.Callback;
 
 /**
- * A special callback that also provides a mechanism to process response headers.
+ * A class similar to PlayN for supporting HTTP related functionality.
  *
  * @author Inderjeet Singh
  */
-public interface HttpCallback<T> extends Callback<T> {
-  public List<String> getResponseHeadersOfInterest();
-  public void processResponseHeader(String header, String value);
-  public void processResponseStatus(int responseStatusCode, String reasonPhrase, String responseBody);
+public abstract class Http {
+  private static Http instance;
+
+  public static void register(Http http) {
+    instance = http;
+  }
+
+  public static void send(HttpRequest request, Callback<HttpResponse> callback) {
+    if (instance == null) {
+      throw new IllegalStateException("Call Http.register() once before invoking Http.send().");
+    }
+    instance.doSend(request, callback);
+  }
+
+  protected abstract void doSend(HttpRequest request, Callback<HttpResponse> callback);
 }
