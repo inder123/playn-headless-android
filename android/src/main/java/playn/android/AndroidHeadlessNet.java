@@ -110,19 +110,14 @@ final class AndroidHeadlessNet extends NetImpl {
 
       private void allowCallbackToProcessFullResponse(
           Callback<String> callback, HttpResponse response, String responseBody) {
-        try {
-          if (!(callback instanceof HttpCallback)) return;
-          HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
-          StatusLine statusLine = response.getStatusLine();
-          httpCallback.processResponseStatus(statusLine.getStatusCode(),
-              statusLine.getReasonPhrase(), responseBody);
-          for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
-            Header header = response.getFirstHeader(headerName);
-            if (header != null) httpCallback.processResponseHeader(headerName, header.getValue());
-          }
-        } catch (Exception e) {
-          PlayN.log().warn("Bad callback", e);
-          // ignore
+        if (!(callback instanceof HttpCallback)) return;
+        HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
+        StatusLine statusLine = response.getStatusLine();
+        httpCallback.processResponseStatus(statusLine.getStatusCode(),
+            statusLine.getReasonPhrase(), responseBody);
+        for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
+          Header header = response.getFirstHeader(headerName);
+          if (header != null) httpCallback.processResponseHeader(headerName, header.getValue());
         }
       }
     }.start();
