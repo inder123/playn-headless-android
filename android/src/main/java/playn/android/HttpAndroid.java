@@ -31,6 +31,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import playn.core.AbstractPlatform;
 import playn.core.util.Callback;
 import playn.http.Http;
 import playn.http.HttpException;
@@ -45,61 +46,65 @@ import playn.http.HttpResponse;
  */
 public class HttpAndroid extends Http {
 
-  private final AndroidPlatform platform;
+  private final AbstractPlatform platform;
 
-  public HttpAndroid(AndroidPlatform platform) {
+  public HttpAndroid(AbstractPlatform platform) {
     this.platform = platform;
   }
 
   @Override
-  protected void doSend(HttpRequest request, Callback<HttpResponse> callback) {
-    HttpClient httpclient = new DefaultHttpClient();
-    HttpRequestBase req;
-    HttpMethod method = request.getMethod();
-    String url = request.getUrl();
-    switch (method) {
-    case GET:
-      req = new HttpGet(url);
-      break;
-    case POST:
-      req = new HttpPost(url);
-      break;
-    case PUT:
-      req = new HttpPut(url);
-      break;
-    default: throw new UnsupportedOperationException(method.toString());
-    }
-    String requestBody = request.getBody();
-    if (requestBody != null) {
-      try {
-        HttpEntityEnclosingRequestBase op = (HttpEntityEnclosingRequestBase) req;
-        op.setEntity(new StringEntity(requestBody));
-      } catch (UnsupportedEncodingException e) {
-        platform.notifyFailure(callback, e);
+  protected void doSend(final HttpRequest request, final Callback<HttpResponse> callback) {
+    new Thread("HttpAndroid.doSend") {
+      public void run() {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpRequestBase req;
+        HttpMethod method = request.getMethod();
+        String url = request.getUrl();
+        switch (method) {
+        case GET:
+          req = new HttpGet(url);
+          break;
+        case POST:
+          req = new HttpPost(url);
+          break;
+        case PUT:
+          req = new HttpPut(url);
+          break;
+        default: throw new UnsupportedOperationException(method.toString());
+        }
+        String requestBody = request.getBody();
+        if (requestBody != null) {
+          try {
+            HttpEntityEnclosingRequestBase op = (HttpEntityEnclosingRequestBase) req;
+            op.setEntity(new StringEntity(requestBody));
+          } catch (UnsupportedEncodingException e) {
+            platform.notifyFailure(callback, e);
+          }
+        }
+        for (Map.Entry<String, String> header : request.getHeaders()) {
+          req.setHeader(header.getKey(), header.getValue());
+        }
+        int statusCode = -1;
+        String statusLineMessage = null;
+        Map<String, String> responseHeaders = new HashMap<String, String>();
+        String responseBody = null;
+        try {
+          org.apache.http.HttpResponse response = httpclient.execute(req);
+          StatusLine statusLine = response.getStatusLine();
+          statusCode = statusLine.getStatusCode();
+          statusLineMessage = statusLine.getReasonPhrase();
+          for (Header header : response.getAllHeaders()) {
+            responseHeaders.put(header.getName(), header.getValue());
+          }
+          responseBody = EntityUtils.toString(response.getEntity());
+          HttpResponse httpResponse = new HttpResponse(
+              statusCode, statusLineMessage, responseHeaders, responseBody);
+          platform.notifySuccess(callback, httpResponse);
+        } catch (Throwable cause) {
+          HttpException reason = new HttpException(statusCode, statusLineMessage, responseBody, cause);
+          platform.notifyFailure(callback, reason);
+        }
       }
-    }
-    for (Map.Entry<String, String> header : request.getHeaders()) {
-      req.setHeader(header.getKey(), header.getValue());
-    }
-    int statusCode = -1;
-    String statusLineMessage = null;
-    Map<String, String> responseHeaders = new HashMap<String, String>();
-    String responseBody = null;
-    try {
-      org.apache.http.HttpResponse response = httpclient.execute(req);
-      StatusLine statusLine = response.getStatusLine();
-      statusCode = statusLine.getStatusCode();
-      statusLineMessage = statusLine.getReasonPhrase();
-      for (Header header : response.getAllHeaders()) {
-        responseHeaders.put(header.getName(), header.getValue());
-      }
-      responseBody = EntityUtils.toString(response.getEntity());
-      HttpResponse httpResponse = new HttpResponse(
-          statusCode, statusLineMessage, responseHeaders, responseBody);
-      platform.notifySuccess(callback, httpResponse);
-    } catch (Throwable cause) {
-      HttpException reason = new HttpException(statusCode, statusLineMessage, responseBody, cause);
-      platform.notifyFailure(callback, reason);
-    }
+    }.start();
   }
 }
