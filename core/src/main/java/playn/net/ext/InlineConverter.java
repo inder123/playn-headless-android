@@ -69,8 +69,7 @@ public final class InlineConverter {
     return headers.entrySet();
   }
 
-  /** Visible for testing only */
-  static String removeGreazeInlineParam(String url) {
+  public static String removeGreazeInlineParam(String url) {
     int start = url.indexOf(INLINE_PARAM);
     if (start == -1) return url;
     start = url.indexOf(INLINE_PARAM_TRUE);
