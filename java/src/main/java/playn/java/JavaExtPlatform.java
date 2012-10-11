@@ -18,6 +18,7 @@ import playn.core.Storage;
 import playn.core.Touch;
 import playn.core.TouchStub;
 import playn.core.json.JsonImpl;
+import playn.http.Http;
 
 /**
  * This class overrides JavaPlatform to provide an alternate implementation of net. It overrides
@@ -63,6 +64,7 @@ public class JavaExtPlatform extends JavaPlatform {
       testInstance = instance;
     }
     PlayN.setPlatform(instance);
+    Http.register(new HttpJava(instance));
     return instance;
   }
 

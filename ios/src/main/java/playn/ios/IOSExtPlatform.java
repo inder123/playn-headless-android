@@ -28,6 +28,7 @@ import playn.core.MouseStub;
 import playn.core.PlayN;
 import playn.core.RegularExpression;
 import playn.core.json.JsonImpl;
+import playn.http.Http;
 import cli.MonoTouch.Foundation.NSUrl;
 import cli.MonoTouch.UIKit.UIApplication;
 import cli.MonoTouch.UIKit.UIDeviceOrientation;
@@ -68,6 +69,7 @@ public class IOSExtPlatform extends IOSPlatform {
                                      boolean iPadLikePhone) {
     IOSExtPlatform platform = new IOSExtPlatform(app, orients, iPadLikePhone);
     PlayN.setPlatform(platform);
+    Http.register(new HttpIOS(platform));
     return platform;
   }
 

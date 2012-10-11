@@ -29,6 +29,7 @@ import playn.core.PlayN;
 import playn.core.Pointer;
 import playn.core.Touch;
 import playn.core.json.JsonImpl;
+import playn.http.Http;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -48,6 +49,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   public static AndroidHeadlessPlatform register(Activity activity) {
     AndroidHeadlessPlatform platform = new AndroidHeadlessPlatform(activity);
     PlayN.setPlatform(platform);
+    Http.register(new HttpAndroid(platform));
     return platform;
   }
 

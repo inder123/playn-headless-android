@@ -29,7 +29,7 @@ public abstract class Http {
     instance = http;
   }
 
-  public static void send(HttpRequest request, Callback<HttpResponse> callback) {
+  public static void send(final HttpRequest request, final Callback<HttpResponse> callback) {
     if (instance == null) {
       throw new IllegalStateException("Call Http.register() once before invoking Http.send().");
     }
