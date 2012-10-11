@@ -53,4 +53,13 @@ public class HttpResponse {
   public String getBody() {
     return body;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("HTTP Response Status Code ").append(statusCode).append(" ").append(statusLineMessage);
+    sb.append("\nResponse Headers: ").append(headers);
+    sb.append("\nResponse Body: ").append(body).append("\n");
+    return sb.toString();
+  }
 }

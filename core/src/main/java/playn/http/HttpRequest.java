@@ -83,4 +83,13 @@ public class HttpRequest {
   public String getBody() {
     return body;
   }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("HTTP ").append(method).append(" ").append(url).append("\n");
+    sb.append("Request Headers: ").append(headers).append("\n");
+    if (body != null) sb.append("Request Body: ").append(body).append("\n");
+    return sb.toString();
+  }
 }
