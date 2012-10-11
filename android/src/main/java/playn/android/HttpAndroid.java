@@ -73,7 +73,7 @@ public class HttpAndroid extends Http {
         default: throw new UnsupportedOperationException(method.toString());
         }
         String requestBody = request.getBody();
-        if (requestBody != null) {
+        if (requestBody != null && req instanceof HttpEntityEnclosingRequestBase) {
           try {
             HttpEntityEnclosingRequestBase op = (HttpEntityEnclosingRequestBase) req;
             op.setEntity(new StringEntity(requestBody));
