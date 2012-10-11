@@ -6,4 +6,5 @@
 
   <source path= 'playn/net' />
   <source path= 'playn/net/ext' />
+  <source path= 'playn/http' />
 </module>
