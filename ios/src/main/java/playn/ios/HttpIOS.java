@@ -63,7 +63,7 @@ public class HttpIOS extends Http {
 
   private void get(HttpRequest request, Callback<HttpResponse> callback) {
     try {
-      final WebRequest req = WebRequest.Create(request.getUrl());
+      final WebRequest req = buildRequest(request);
       req.BeginGetResponse(gotResponse(req, callback), null);
     } catch (Throwable t) {
       callback.onFailure(t);
@@ -72,20 +72,8 @@ public class HttpIOS extends Http {
 
   public void postOrPut(final HttpRequest request, final Callback<HttpResponse> callback) {
     try {
-      final WebRequest req = WebRequest.Create(request.getUrl());
+      final WebRequest req = buildRequest(request);
       req.set_Method(request.getMethod().toString());
-      WebHeaderCollection headers = req.get_Headers();
-      req.set_ContentType("application/json");
-      for (Map.Entry<String, String> header : request.getHeaders()) {
-        String name = header.getKey();
-        if (name.equalsIgnoreCase("Content-Type")) continue;
-        String value = header.getValue();
-        if (headers.Get(name) != null) {
-          headers.Set(name,  value);
-        } else {
-          headers.Add(name, value);
-        }
-      }
       req.BeginGetRequestStream(new AsyncCallback(new AsyncCallback.Method() {
         @Override
         public void Invoke(IAsyncResult result) {
@@ -102,6 +90,23 @@ public class HttpIOS extends Http {
     } catch (Throwable t) {
       callback.onFailure(t);
     }
+  }
+
+  private WebRequest buildRequest(final HttpRequest request) {
+    final WebRequest req = WebRequest.Create(request.getUrl());
+    WebHeaderCollection headers = req.get_Headers();
+    req.set_ContentType("application/json");
+    for (Map.Entry<String, String> header : request.getHeaders()) {
+      String name = header.getKey();
+      if (name.equalsIgnoreCase("Content-Type")) continue;
+      String value = header.getValue();
+      if (headers.Get(name) != null) {
+        headers.Set(name,  value);
+      } else {
+        headers.Add(name, value);
+      }
+    }
+    return req;
   }
 
   private AsyncCallback gotResponse (final WebRequest req, final Callback<HttpResponse> callback) {
