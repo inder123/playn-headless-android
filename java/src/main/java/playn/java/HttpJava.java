@@ -16,7 +16,6 @@
 package playn.java;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
@@ -51,43 +50,20 @@ public class HttpJava extends Http {
     HttpMethod method = request.getMethod();
     switch (method) {
     case GET:
-      get(request, callback);
-      break;
     case POST:
     case PUT:
-      postOrPut(request, callback);
+      invokeHttpMethod(request, callback);
       break;
     default: throw new UnsupportedOperationException(method.toString());
     }
   }
 
-  public void get(final HttpRequest request, final Callback<HttpResponse> callback) {
+  public void invokeHttpMethod(final HttpRequest request, final Callback<HttpResponse> callback) {
     final String urlStr = request.getUrl();
-    new Thread("JavaNet.get(" + urlStr + ")") {
-      @Override
+    new Thread("JavaNet.http(" + urlStr + ")") {
       public void run() {
         try {
-          URL url = new URL(canonicalizeUrl(urlStr));
-          HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-          InputStream stream = conn.getInputStream();
-          InputStreamReader reader = new InputStreamReader(stream);
-          String responseBody = readFully(reader);
-          gotResponse(request, conn, responseBody, callback);
-        } catch (MalformedURLException e) {
-          platform.notifyFailure(callback, e);
-        } catch (IOException e) {
-          platform.notifyFailure(callback, e);
-        }
-      }
-    }.start();
-  }
-
-  public void postOrPut(final HttpRequest request, final Callback<HttpResponse> callback) {
-    final String urlStr = request.getUrl();
-    new Thread("JavaNet.post(" + urlStr + ")") {
-      public void run() {
-        try {
-          URL url = new URL(canonicalizeUrl(urlStr));
+          URL url = new URL(urlStr);
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
           HttpMethod method = request.getMethod();
           conn.setRequestMethod(method.toString());
@@ -104,7 +80,7 @@ public class HttpJava extends Http {
             conn.getOutputStream().write(request.getBody().getBytes("UTF-8"));
             conn.getOutputStream().close();
           }
-          String result = readFully(new InputStreamReader(conn.getInputStream()));
+          String result = readFully(new InputStreamReader(conn.getInputStream(), "utf-8"));
           conn.disconnect();
           gotResponse(request, conn, result, callback);
         } catch (MalformedURLException e) {
@@ -114,20 +90,6 @@ public class HttpJava extends Http {
         }
       }
     }.start();
-  }
-
-  // Super-simple url-cleanup: assumes it either starts with "http", or that
-  // it's an absolute path on the current server.
-  private String canonicalizeUrl(String url) {
-    if (!url.startsWith("http")) {
-      return "http://" + server() + url;
-    }
-    return url;
-  }
-
-  // TODO: Make this specifyable somewhere.
-  private String server() {
-    return "127.0.0.1:8080";
   }
 
   private String readFully(Reader reader) throws IOException {
