@@ -16,6 +16,7 @@
 package playn.android;
 
 import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,6 +109,7 @@ public class HttpAndroid extends Http {
           HttpErrorType errorType = cause instanceof ConnectTimeoutException
               || cause instanceof HttpHostConnectException
               || cause instanceof ConnectionPoolTimeoutException
+              || cause instanceof UnknownHostException
               ? HttpErrorType.NETWORK_FAILURE : HttpErrorType.SERVER_ERROR;
           HttpException reason = new HttpException(
               statusCode, statusLineMessage, responseBody, cause, errorType);

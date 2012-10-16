@@ -22,6 +22,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -87,6 +88,9 @@ public class HttpJava extends Http {
           gotResponse(request, conn, result, callback);
         } catch (MalformedURLException e) {
           platform.notifyFailure(callback, e);
+        } catch (UnknownHostException e) {
+          HttpException he = new HttpException(500, "", "", e, HttpErrorType.NETWORK_FAILURE);
+          platform.notifyFailure(callback, he);
         } catch (SocketTimeoutException e) {
           HttpException he = new HttpException(500, "", "", e, HttpErrorType.NETWORK_FAILURE);
           platform.notifyFailure(callback, he);
