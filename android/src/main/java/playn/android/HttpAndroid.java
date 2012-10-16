@@ -27,6 +27,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
@@ -34,6 +37,7 @@ import org.apache.http.util.EntityUtils;
 import playn.core.AbstractPlatform;
 import playn.core.util.Callback;
 import playn.http.Http;
+import playn.http.HttpErrorType;
 import playn.http.HttpException;
 import playn.http.HttpMethod;
 import playn.http.HttpRequest;
@@ -101,7 +105,12 @@ public class HttpAndroid extends Http {
               statusCode, statusLineMessage, responseHeaders, responseBody);
           platform.notifySuccess(callback, httpResponse);
         } catch (Throwable cause) {
-          HttpException reason = new HttpException(statusCode, statusLineMessage, responseBody, cause);
+          HttpErrorType errorType = cause instanceof ConnectTimeoutException
+              || cause instanceof HttpHostConnectException
+              || cause instanceof ConnectionPoolTimeoutException
+              ? HttpErrorType.NETWORK_FAILURE : HttpErrorType.SERVER_ERROR;
+          HttpException reason = new HttpException(
+              statusCode, statusLineMessage, responseBody, cause, errorType);
           platform.notifyFailure(callback, reason);
         }
       }

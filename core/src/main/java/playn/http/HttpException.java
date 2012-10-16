@@ -23,17 +23,18 @@ import java.io.IOException;
  * @author Inderjeet Singh
  */
 public class HttpException extends IOException {
-
   private static final long serialVersionUID = 6876951484475455549L;
   private final int responseStatusCode;
   private final String statusLineMessage;
   private final String responseBody;
+  private final HttpErrorType errorType;
 
   public HttpException(int responseStatusCode, String statusLineMessage, String responseBody,
-      Throwable cause) {
+      Throwable cause, HttpErrorType errorType) {
     this.responseStatusCode = responseStatusCode;
     this.statusLineMessage = statusLineMessage;
     this.responseBody = responseBody;
+    this.errorType = errorType;
   }
 
   public int getResponseStatusCode() {
@@ -46,5 +47,9 @@ public class HttpException extends IOException {
 
   public String getResponseBody() {
     return responseBody;
+  }
+
+  public HttpErrorType getErrorType() {
+    return errorType;
   }
 }

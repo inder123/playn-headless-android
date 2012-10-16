@@ -20,12 +20,14 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import playn.core.util.Callback;
 import playn.http.Http;
+import playn.http.HttpErrorType;
 import playn.http.HttpException;
 import playn.http.HttpMethod;
 import playn.http.HttpRequest;
@@ -85,6 +87,9 @@ public class HttpJava extends Http {
           gotResponse(request, conn, result, callback);
         } catch (MalformedURLException e) {
           platform.notifyFailure(callback, e);
+        } catch (SocketTimeoutException e) {
+          HttpException he = new HttpException(500, "", "", e, HttpErrorType.NETWORK_FAILURE);
+          platform.notifyFailure(callback, he);
         } catch (IOException e) {
           platform.notifyFailure(callback, e);
         }
@@ -117,8 +122,8 @@ public class HttpJava extends Http {
       HttpResponse response = new HttpResponse(
           statusCode, statusLineMessage, responseHeaders, responseBody);
       platform.notifySuccess(callback, response);
-    } catch (final Throwable t) {
-      throw new HttpException(statusCode, statusLineMessage, responseBody, t);
+    } catch (Throwable t) {
+      throw new HttpException(statusCode, statusLineMessage, responseBody, t, HttpErrorType.SERVER_ERROR);
     }
   }
 }

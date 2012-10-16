@@ -20,6 +20,7 @@ import java.util.Map;
 
 import playn.core.util.Callback;
 import playn.http.Http;
+import playn.http.HttpErrorType;
 import playn.http.HttpException;
 import playn.http.HttpMethod;
 import playn.http.HttpRequest;
@@ -32,6 +33,7 @@ import cli.System.Net.HttpWebResponse;
 import cli.System.Net.WebHeaderCollection;
 import cli.System.Net.WebRequest;
 import cli.System.Net.WebResponse;
+import cli.System.Net.NetworkInformation.NetworkInterface;
 
 /**
  * iOS implementation for {@link Http}.
@@ -109,10 +111,15 @@ public class HttpIOS extends Http {
     return req;
   }
 
-  private AsyncCallback gotResponse (final WebRequest req, final Callback<HttpResponse> callback) {
+  private AsyncCallback gotResponse(final WebRequest req, final Callback<HttpResponse> callback) {
     return new AsyncCallback(new AsyncCallback.Method() {
       @Override
       public void Invoke(IAsyncResult result) {
+        if (!NetworkInterface.GetIsNetworkAvailable()) {
+          HttpException error = new HttpException(500, "", "", null, HttpErrorType.NETWORK_FAILURE);
+          platform.notifyFailure(callback, error);
+          return;
+        }
         StreamReader reader = null;
         int statusCode = -1;
         String statusLineMessage = null;
@@ -133,8 +140,9 @@ public class HttpIOS extends Http {
           HttpResponse response = new HttpResponse(
               statusCode, statusLineMessage, responseHeaders, responseBody);
           platform.notifySuccess(callback, response);
-        } catch (final Throwable t) {
-          HttpException error = new HttpException(statusCode, statusLineMessage, responseBody, t);
+        } catch (Throwable t) {
+          HttpException error = new HttpException(
+              statusCode, statusLineMessage, responseBody, t, HttpErrorType.SERVER_ERROR);
           platform.notifyFailure(callback, error);
         } finally {
           if (reader != null)
