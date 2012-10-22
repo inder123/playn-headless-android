@@ -46,11 +46,15 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
 
   public static final boolean DEBUG_LOGS = true;
 
-  public static AndroidHeadlessPlatform register(Activity activity) {
-    AndroidHeadlessPlatform platform = new AndroidHeadlessPlatform(activity);
-    PlayN.setPlatform(platform);
-    Http.register(new HttpAndroid(platform));
-    return platform;
+  private static boolean init = false;
+
+  public static synchronized void register(Activity activity) {
+    if (!init) {
+      init = true;
+      AndroidHeadlessPlatform platform = new AndroidHeadlessPlatform(activity);
+      PlayN.setPlatform(platform);
+      Http.register(new HttpAndroid(platform));
+    }
   }
 
   Game game;
