@@ -16,36 +16,28 @@
 package playn.android;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import playn.core.NetImpl;
-import playn.core.PlayN;
 import playn.core.util.Callback;
-import playn.net.ext.HttpCallback;
-import playn.net.ext.InlineConverter;
 
 /**
- * A headless version of {@link NetImpl} that is largely a copy of AndroidNet but avoids
- * the dependency on AndroidPlatform. In addition, it supports HTTP PUT, and converts
- * Greaze inlined requests into regular requests.
+ * A headless version of {@link NetImpl} that is a copy of AndroidNet but avoids
+ * the dependency on AndroidPlatform.
  *
  * @author Inderjeet Singh
  */
 final class AndroidHeadlessNet extends NetImpl {
-  private static final boolean LOG = true;
 
   @Override
   public void get(String url, Callback<String> callback) {
@@ -61,63 +53,36 @@ final class AndroidHeadlessNet extends NetImpl {
     super(platform);
   }
 
-  private void doHttp(final boolean isPost, final String urlIn, final String dataIn,
+  private void doHttp(final boolean isPost, final String url, final String data,
                       final Callback<String> callback) {
     new Thread("AndroidNet.doHttp") {
       public void run() {
         HttpClient httpclient = new DefaultHttpClient();
         HttpRequestBase req = null;
-        // Convert inlined request to regular request.
-        String method = isPost ? "POST" : "GET";
-        InlineConverter inlined = new InlineConverter(method, urlIn, dataIn, PlayN.json());
-        String url = inlined.getUrl();
-        String data = inlined.getBody();
-        method = inlined.getHttpMethod();
-        if (LOG) PlayN.log().info(method + " " + url + "\n" + inlined.getHeaders() + "\n" + data);
-        if (method.equalsIgnoreCase("GET")) {
-          req = new HttpGet(url);
-        } else {
-          HttpEntityEnclosingRequestBase op = method.equalsIgnoreCase("PUT")
-              ? new HttpPut(url) : new HttpPost(url);
+        if (isPost) {
+          HttpPost httppost = new HttpPost(url);
           if (data != null) {
             try {
-              op.setEntity(new StringEntity(data));
+              httppost.setEntity(new StringEntity(data));
             } catch (UnsupportedEncodingException e) {
               platform.notifyFailure(callback, e);
             }
           }
-          req = op;
-        }
-        for (Map.Entry<String, String> header : inlined.getHeaders()) {
-          req.setHeader(header.getKey(), header.getValue());
+          req = httppost;
+        } else {
+          req = new HttpGet(url);
         }
         try {
           HttpResponse response = httpclient.execute(req);
-          String responseBody = null;
-          Exception responseBodyReadError = null;
-          try {
-            responseBody = EntityUtils.toString(response.getEntity());
-          } catch (Exception e) {
-            responseBodyReadError = e;
+          StatusLine status = response.getStatusLine();
+          int code = status.getStatusCode();
+          if (code == HttpStatus.SC_OK) {
+            platform.notifySuccess(callback, EntityUtils.toString(response.getEntity()));
+          } else {
+            platform.notifyFailure(callback, new HttpException(code, status.getReasonPhrase()));
           }
-          allowCallbackToProcessFullResponse(callback, response, responseBody);
-          if (responseBodyReadError != null) throw responseBodyReadError;
-          platform.notifySuccess(callback, responseBody);
         } catch (Exception e) {
           platform.notifyFailure(callback, e);
-        }
-      }
-
-      private void allowCallbackToProcessFullResponse(
-          Callback<String> callback, HttpResponse response, String responseBody) {
-        if (!(callback instanceof HttpCallback)) return;
-        HttpCallback<String> httpCallback = (HttpCallback<String>) callback;
-        StatusLine statusLine = response.getStatusLine();
-        httpCallback.processResponseStatus(statusLine.getStatusCode(),
-            statusLine.getReasonPhrase(), responseBody);
-        for (String headerName : httpCallback.getResponseHeadersOfInterest()) {
-          Header header = response.getFirstHeader(headerName);
-          if (header != null) httpCallback.processResponseHeader(headerName, header.getValue());
         }
       }
     }.start();
