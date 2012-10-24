@@ -29,6 +29,7 @@ import playn.core.PlayN;
 import playn.core.RegularExpression;
 import playn.core.json.JsonImpl;
 import playn.http.Http;
+import playn.http.HttpIOS;
 import cli.MonoTouch.Foundation.NSUrl;
 import cli.MonoTouch.UIKit.UIApplication;
 import cli.MonoTouch.UIKit.UIDeviceOrientation;

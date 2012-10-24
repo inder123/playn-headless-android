@@ -30,6 +30,7 @@ import playn.core.Pointer;
 import playn.core.Touch;
 import playn.core.json.JsonImpl;
 import playn.http.Http;
+import playn.http.HttpAndroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;

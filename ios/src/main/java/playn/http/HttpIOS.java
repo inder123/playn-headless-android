@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.ios;
+package playn.http;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +25,7 @@ import playn.http.HttpException;
 import playn.http.HttpMethod;
 import playn.http.HttpRequest;
 import playn.http.HttpResponse;
+import playn.ios.IOSPlatform;
 import cli.System.AsyncCallback;
 import cli.System.IAsyncResult;
 import cli.System.IO.StreamReader;

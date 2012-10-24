@@ -19,6 +19,7 @@ import playn.core.Touch;
 import playn.core.TouchStub;
 import playn.core.json.JsonImpl;
 import playn.http.Http;
+import playn.http.HttpJava;
 
 /**
  * This class overrides JavaPlatform to provide an alternate implementation of net. It overrides

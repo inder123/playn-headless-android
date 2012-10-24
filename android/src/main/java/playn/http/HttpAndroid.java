@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.android;
+package playn.http;
 
 import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;

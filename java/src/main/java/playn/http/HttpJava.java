@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package playn.java;
+package playn.http;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -33,6 +33,7 @@ import playn.http.HttpException;
 import playn.http.HttpMethod;
 import playn.http.HttpRequest;
 import playn.http.HttpResponse;
+import playn.java.JavaPlatform;
 
 /**
  * Pure Java implementation of {@link Http}.
