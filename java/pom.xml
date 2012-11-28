@@ -11,25 +11,6 @@
   <packaging>jar</packaging>
   <name>Extensions to PlayN Java</name>
 
-  <scm>
-    <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
-    <url>scm:git:git@github.com:inder123/playn-ext.git</url>
-    <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>cloudbees-private-snapshot-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${snapshot-repo.url}</url>
-    </snapshotRepository>
-    <repository>
-      <id>cloudbees-private-release-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${release-repo.url}</url>
-    </repository>
-  </distributionManagement>
-
   <dependencies>
     <dependency>
       <groupId>com.singhinderjeet</groupId>

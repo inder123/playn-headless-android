@@ -11,25 +11,6 @@
   <packaging>jar</packaging>
   <name>Headless version of PlayN Android</name>
 
-  <scm>
-    <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
-    <url>scm:git:git@github.com:inder123/playn-ext.git</url>
-    <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>cloudbees-private-snapshot-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${snapshot-repo.url}</url>
-    </snapshotRepository>
-    <repository>
-      <id>cloudbees-private-release-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${release-repo.url}</url>
-    </repository>
-  </distributionManagement>
-
   <dependencies>
     <dependency>
       <groupId>com.singhinderjeet</groupId>
@@ -52,19 +33,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.2</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>com.jayway.maven.plugins.android.generation2</groupId>
         <artifactId>android-maven-plugin</artifactId>
