@@ -17,6 +17,7 @@ package playn.android;
 
 import java.util.ArrayList;
 
+import playn.core.BatchImpl;
 import playn.core.Storage;
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -60,5 +61,26 @@ public class AndroidHeadlessStorage implements Storage {
       settings = activity.getSharedPreferences(PREFS_NAME, 0);
     }
     return settings;
+  }
+
+  @Override
+  public Batch startBatch() {
+    return new BatchImpl(this) {
+      private SharedPreferences.Editor edit;
+      protected void onBeforeCommit() {
+        edit = settings.edit();
+      }
+      protected void setImpl(String key, String data) {
+        edit.putString(key, data);
+      }
+      @SuppressWarnings("unused")
+      protected void removeImpl(String key, String data) {
+        edit.remove(key);
+      }
+      protected void onAfterCommit() {
+        edit.commit();
+        edit = null;
+      }
+    };
   }
 }
