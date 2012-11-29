@@ -8,7 +8,7 @@
   </parent>
   <groupId>com.singhinderjeet</groupId>
   <artifactId>playn-ext</artifactId>
-  <version>1.3</version>
+  <version>1.4-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Playn Extensions Metaproject</name>
   <scm>

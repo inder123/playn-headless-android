@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.singhinderjeet</groupId>
     <artifactId>playn-ext</artifactId>
-    <version>1.3</version>
+    <version>1.4-SNAPSHOT</version>
   </parent>
   <artifactId>playn-ext-html</artifactId>
   <packaging>jar</packaging>
@@ -13,7 +13,7 @@
     <dependency>
       <groupId>com.singhinderjeet</groupId>
       <artifactId>playn-ext-core</artifactId>
-      <version>1.3</version>
+      <version>1.4-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.googlecode.playn</groupId>
