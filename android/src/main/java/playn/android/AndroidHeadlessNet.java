@@ -55,7 +55,8 @@ final class AndroidHeadlessNet extends NetImpl {
 
   private void doHttp(final boolean isPost, final String url, final String data,
                       final Callback<String> callback) {
-    new Thread("AndroidNet.doHttp") {
+    platform.invokeAsync(new Runnable() {
+      @Override
       public void run() {
         HttpClient httpclient = new DefaultHttpClient();
         HttpRequestBase req = null;
@@ -85,6 +86,10 @@ final class AndroidHeadlessNet extends NetImpl {
           platform.notifyFailure(callback, e);
         }
       }
-    }.start();
+      @Override
+      public String toString() {
+        return "AndroidNet.doHttp(" + isPost + ", " + url + ")";
+      }
+    });
   }
 }
