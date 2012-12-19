@@ -33,16 +33,14 @@ import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import playn.core.AbstractPlatform;
 import playn.core.util.Callback;
-import playn.http.Http;
-import playn.http.HttpErrorType;
-import playn.http.HttpException;
-import playn.http.HttpMethod;
-import playn.http.HttpRequest;
-import playn.http.HttpResponse;
 
 /**
  * Android-specific implementation of {@link Http}.
@@ -59,9 +57,12 @@ public class HttpAndroid extends Http {
 
   @Override
   protected void doSend(final HttpRequest request, final Callback<HttpResponse> callback) {
-    new Thread("HttpAndroid.doSend") {
+    platform.invokeAsync(new Runnable() {
       public void run() {
-        HttpClient httpclient = new DefaultHttpClient();
+        HttpParams params = new BasicHttpParams();
+        HttpProtocolParams.setContentCharset(params, HTTP.UTF_8);
+        HttpProtocolParams.setHttpElementCharset(params, HTTP.UTF_8);
+        HttpClient httpclient = new DefaultHttpClient(params);
         HttpRequestBase req;
         HttpMethod method = request.getMethod();
         String url = request.getUrl();
@@ -116,6 +117,6 @@ public class HttpAndroid extends Http {
           platform.notifyFailure(callback, reason);
         }
       }
-    }.start();
+    });
   }
 }

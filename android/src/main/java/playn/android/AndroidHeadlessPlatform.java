@@ -34,6 +34,7 @@ import playn.http.HttpAndroid;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 
 /**
@@ -121,6 +122,23 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   @Override
   public void invokeLater(Runnable runnable) {
     handler.post(runnable);
+  }
+
+  public void invokeAsync(final Runnable action) {
+    activity.runOnUiThread(new Runnable() {
+      public void run () {
+        new AsyncTask<Void,Void,Void>() {
+          @Override public Void doInBackground(Void... params) {
+            try {
+              action.run();
+            } catch (Exception e) {
+              log.warn("Async task failure [task=" + action + "]", e);
+            }
+            return null;
+          }
+        }.execute();
+      }
+    });
   }
 
   @Override
