@@ -3,19 +3,20 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.singhinderjeet</groupId>
-    <artifactId>playn-ext</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <artifactId>playn-http</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>playn-headless-android</artifactId>
   <packaging>jar</packaging>
+  <version>1.4-SNAPSHOT</version>
   <name>Headless version of PlayN Android</name>
 
   <dependencies>
     <dependency>
       <groupId>com.singhinderjeet</groupId>
-      <artifactId>playn-ext-core</artifactId>
-      <version>1.4-SNAPSHOT</version>
+      <artifactId>playn-http-android</artifactId>
+      <version>1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.googlecode.playn</groupId>

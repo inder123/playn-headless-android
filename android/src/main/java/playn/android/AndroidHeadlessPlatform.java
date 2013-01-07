@@ -46,7 +46,7 @@ import android.os.Handler;
  */
 public class AndroidHeadlessPlatform extends AbstractPlatform {
 
-  public static final boolean DEBUG_LOGS = true;
+  public static final boolean DEBUG_LOGS = false;
 
   private static boolean init = false;
 
