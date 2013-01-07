@@ -1,4 +1,4 @@
 playn-ext
 =========
 
-Some extensions related to playn
+A headless version of PlayN for the Android platform

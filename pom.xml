@@ -2,72 +2,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.googlecode.playn</groupId>
-    <artifactId>playn-project</artifactId>
-    <version>1.5.1</version>
+    <groupId>com.singhinderjeet</groupId>
+    <artifactId>playn-http</artifactId>
+    <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>com.singhinderjeet</groupId>
-  <artifactId>playn-ext</artifactId>
+
+  <artifactId>playn-headless-android</artifactId>
+  <packaging>jar</packaging>
   <version>1.4-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Playn Extensions Metaproject</name>
-  <scm>
-    <connection>scm:git:git@github.com:inder123/playn-ext.git</connection>
-    <url>scm:git:git@github.com:inder123/playn-ext.git</url>
-    <developerConnection>scm:git:git@github.com:inder123/playn-ext.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-  <properties>
-    <playn.version>1.5.1</playn.version>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>cloudbees-private-snapshot-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${snapshot-repo.url}</url>
-    </snapshotRepository>
-    <repository>
-      <id>cloudbees-private-release-repository</id>
-      <name>Cloudbees Private Repository</name>
-      <url>${release-repo.url}</url>
-    </repository>
-  </distributionManagement>
-  <modules>
-    <module>core</module>
-    <module>android</module>
-    <module>java</module>
-    <module>html</module>
-    <module>ios</module>
-  </modules>
+  <name>Headless version of PlayN Android</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.singhinderjeet</groupId>
+      <artifactId>playn-http-android</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.playn</groupId>
+      <artifactId>playn-android</artifactId>
+      <version>${playn.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android</artifactId>
+      <version>${android.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
+        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>${android.maven.version}</version>
         <configuration>
-          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+          <assetsDirectory>${project.basedir}/assets</assetsDirectory>
+          <resourceDirectory>${project.basedir}/res</resourceDirectory>
+          <sdk>
+            <platform>11</platform>
+          </sdk>
+          <deleteConflictingFiles>true</deleteConflictingFiles>
+          <undeployBeforeDeploy>true</undeployBeforeDeploy>
+          <jvmArguments>
+            <jvmArgument>-Xmx1024m</jvmArgument>
+          </jvmArguments>
+          <dex>
+            <jvmArguments>
+              <jvmArgument>-Xmx1024m</jvmArgument>
+            </jvmArguments>
+          </dex>
         </configuration>
-       </plugin>
+        <extensions>true</extensions>
+      </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-webdav-jackrabbit</artifactId>
-        <version>2.2</version>
-      </extension>
-    </extensions>
   </build>
 </project>
+
