@@ -9,7 +9,7 @@
   <groupId>com.singhinderjeet</groupId>
   <artifactId>playn-headless-android</artifactId>
   <packaging>jar</packaging>
-  <version>1.5.1-SNAPSHOT</version>
+  <version>1.5.1</version>
   <name>Headless version of PlayN Android</name>
   <scm>
     <connection>scm:git:git@github.com:inder123/playn-headless-android.git</connection>
