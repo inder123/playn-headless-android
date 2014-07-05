@@ -50,14 +50,14 @@ public class AndroidHeadlessKeyboard implements Keyboard {
   @Override
   public void getText(final TextType textType, final String label, final String initVal,
       final Callback<String> callback) {
-    platform.activity.runOnUiThread(new Runnable() {
+    platform.runOnUiThread(new Runnable() {
       public void run () {
-        final AlertDialog.Builder alert = new AlertDialog.Builder(platform.activity);
+        final AlertDialog.Builder alert = new AlertDialog.Builder(platform.getCurrentContext());
 
         alert.setMessage(label);
 
         // Set an EditText view to get user input
-        final EditText input = new EditText(platform.activity);
+        final EditText input = new EditText(platform.getCurrentContext());
         final int inputType;
         switch (textType) {
         case NUMBER:

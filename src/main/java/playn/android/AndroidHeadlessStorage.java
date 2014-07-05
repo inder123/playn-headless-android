@@ -19,16 +19,16 @@ import java.util.ArrayList;
 
 import playn.core.BatchImpl;
 import playn.core.Storage;
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 public class AndroidHeadlessStorage implements Storage {
   private static final String PREFS_NAME = "playn";
-  private final Activity activity;
+  private final Context appContext;
   private SharedPreferences settings;
 
-  public AndroidHeadlessStorage(Activity activity) {
-    this.activity = activity;
+  public AndroidHeadlessStorage(Context appContext) {
+    this.appContext = appContext;
   }
 
   @Override
@@ -58,7 +58,7 @@ public class AndroidHeadlessStorage implements Storage {
 
   private SharedPreferences getSettings() {
     if (settings == null) {
-      settings = activity.getSharedPreferences(PREFS_NAME, 0);
+      settings = appContext.getSharedPreferences(PREFS_NAME, 0);
     }
     return settings;
   }

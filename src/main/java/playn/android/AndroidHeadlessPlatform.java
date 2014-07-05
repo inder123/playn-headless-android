@@ -32,6 +32,7 @@ import playn.core.json.JsonImpl;
 import playn.http.Http;
 import playn.http.HttpAndroid;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -50,17 +51,25 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
 
   private static boolean init = false;
 
-  public static synchronized void register(Activity activity) {
+  public static synchronized void registerApp(Context appContext) {
     if (!init) {
       init = true;
-      AndroidHeadlessPlatform platform = new AndroidHeadlessPlatform(activity);
+      AndroidHeadlessPlatform platform = new AndroidHeadlessPlatform(appContext);
       PlayN.setPlatform(platform);
       Http.register(new HttpAndroid(platform));
     }
   }
 
+  public static synchronized void setActivity(Activity currentActivity) {
+    if (!init) {
+      registerApp(currentActivity.getApplicationContext());
+    }
+    ((AndroidHeadlessPlatform)PlayN.platform()).setCurrentActivityForApp(currentActivity);
+  }
+
   Game game;
-  Activity activity;
+  private final Context appContext;
+  private Activity currentActivity;
   private final Handler handler = new Handler();
 
   private final AndroidAnalytics analytics = new AndroidAnalytics();
@@ -69,13 +78,29 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   private final AndroidHeadlessStorage storage;
   private final Json json = new JsonImpl();
 
-  protected AndroidHeadlessPlatform(Activity activity) {
+  protected AndroidHeadlessPlatform(Context appContext) {
     super(new AndroidLog());
-    this.activity = activity;
+    this.appContext = appContext;
 
     keyboard = new AndroidHeadlessKeyboard(this);
     net = new AndroidHeadlessNet(this);
-    storage = new AndroidHeadlessStorage(activity);
+    storage = new AndroidHeadlessStorage(appContext);
+  }
+
+  private void setCurrentActivityForApp(Activity activity) {
+    this.currentActivity = activity;
+  }
+
+  public Context getCurrentContext() {
+    return currentActivity == null ? currentActivity : appContext;
+  }
+
+  public void runOnUiThread(Runnable action) {
+    if (currentActivity == null) {
+      new Handler().post(action);
+    } else {
+      currentActivity.runOnUiThread(action);
+    }
   }
 
   @Override
@@ -116,7 +141,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   @Override
   public void openURL(String url) {
     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-    activity.startActivity(browserIntent);
+    appContext.startActivity(browserIntent);
   }
 
   @Override
@@ -124,8 +149,9 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
     handler.post(runnable);
   }
 
+  @Override
   public void invokeAsync(final Runnable action) {
-    activity.runOnUiThread(new Runnable() {
+    Runnable runnable = new Runnable() {
       public void run () {
         new AsyncTask<Void,Void,Void>() {
           @Override public Void doInBackground(Void... params) {
@@ -138,7 +164,12 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
           }
         }.execute();
       }
-    });
+    };
+    if (currentActivity == null) {
+      new Handler().post(runnable);
+    } else {
+      currentActivity.runOnUiThread(runnable);
+    }
   }
 
   @Override
