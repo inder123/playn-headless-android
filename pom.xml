@@ -28,8 +28,10 @@
        3. Call mvn -s ~/.m2/settings.xml release:clean
        4. Call mvn -s ~/.m2/settings.xml release:prepare -DdryRun=true
           Usually, the default answers are good enough.
-       5. Call mvn -s ~/.m2/settings.xml release:prepare
-       6. Call mvn -s ~/.m2/settings.xml release:perform
+       5. Call mvn -s ~/.m2/settings.xml release:clean
+       6. Call mvn -s ~/.m2/settings.xml release:prepare
+       7. Call mvn -s ~/.m2/settings.xml release:perform
+       8. Go to SonaType repository at https://oss.sonatype.org/index.html and close and release the version.
     -->
   <distributionManagement>
     <snapshotRepository>
