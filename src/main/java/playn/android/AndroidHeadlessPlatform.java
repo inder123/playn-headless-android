@@ -92,7 +92,7 @@ public class AndroidHeadlessPlatform extends AbstractPlatform {
   }
 
   public Context getCurrentContext() {
-    return currentActivity == null ? currentActivity : appContext;
+    return currentActivity != null ? currentActivity : appContext;
   }
 
   public void runOnUiThread(Runnable action) {
